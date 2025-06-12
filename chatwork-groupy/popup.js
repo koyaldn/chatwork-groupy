@@ -1,0 +1,106 @@
+// popup.js (機能追加版)
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('add-rule-form');
+  const groupNameInput = document.getElementById('group-name-input');
+  const keywordInput = document.getElementById('keyword-input');
+  const rulesList = document.getElementById('rules-list');
+  const submitButton = form.querySelector('.add-button');
+
+  // ルールを描画する関数
+  async function renderRules() {
+    const { rules = [] } = await chrome.storage.sync.get('rules');
+    rulesList.innerHTML = ''; 
+
+    if (rules.length === 0) {
+      rulesList.innerHTML = '<li>ルールはまだありません。</li>';
+      return;
+    }
+
+    rules.forEach(rule => {
+      const li = document.createElement('li');
+      li.className = 'rule-item';
+      // 複数キーワードをカンマ区切りの文字列に戻して表示
+      const keywordsText = Array.isArray(rule.keywords) ? rule.keywords.join(', ') : rule.keywords;
+      
+      li.innerHTML = `
+        <div class="rule-details">
+          <div class="group-name">${rule.groupName}</div>
+          <div class="keyword">キーワード: ${keywordsText}</div>
+        </div>
+        <div class="rule-actions">
+          <button class="action-button edit-button" data-rule-id="${rule.id}" title="編集">
+            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+          <button class="action-button delete-button" data-rule-id="${rule.id}" title="削除">
+            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>
+      `;
+      rulesList.appendChild(li);
+    });
+  }
+
+  // フォームをリセットする関数
+  function resetForm() {
+    form.reset();
+    delete form.dataset.editingId;
+    submitButton.textContent = 'ルールを追加';
+    submitButton.classList.remove('update-mode');
+  }
+
+  // 追加または更新の処理
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const groupName = groupNameInput.value.trim();
+    const keywordsRaw = keywordInput.value.trim();
+    const editingId = form.dataset.editingId ? Number(form.dataset.editingId) : null;
+
+    if (groupName && keywordsRaw) {
+      // カンマで分割し、各キーワードの空白を除去し、空のものをフィルタリング
+      const keywords = keywordsRaw.split(',').map(kw => kw.trim()).filter(Boolean);
+
+      let { rules = [] } = await chrome.storage.sync.get('rules');
+
+      if (editingId) { // 更新モード
+        rules = rules.map(rule => 
+          rule.id === editingId ? { ...rule, groupName, keywords } : rule
+        );
+      } else { // 追加モード
+        rules.push({ id: Date.now(), groupName, keywords });
+      }
+
+      await chrome.storage.sync.set({ rules });
+      resetForm();
+      renderRules();
+    }
+  });
+
+  // 編集と削除の処理（イベントデリゲーション）
+  rulesList.addEventListener('click', async (e) => {
+    const button = e.target.closest('.action-button');
+    if (!button) return;
+
+    const ruleId = Number(button.dataset.ruleId);
+    let { rules = [] } = await chrome.storage.sync.get('rules');
+
+    if (button.classList.contains('delete-button')) {
+      rules = rules.filter(rule => rule.id !== ruleId);
+      await chrome.storage.sync.set({ rules });
+      renderRules();
+    } else if (button.classList.contains('edit-button')) {
+      const ruleToEdit = rules.find(rule => rule.id === ruleId);
+      if (ruleToEdit) {
+        groupNameInput.value = ruleToEdit.groupName;
+        // 配列をカンマ区切りの文字列に戻してセット
+        keywordInput.value = Array.isArray(ruleToEdit.keywords) ? ruleToEdit.keywords.join(', ') : '';
+        form.dataset.editingId = ruleId;
+        submitButton.textContent = 'ルールを更新';
+        submitButton.classList.add('update-mode');
+        groupNameInput.focus();
+      }
+    }
+  });
+
+  // 初期表示
+  renderRules();
+});

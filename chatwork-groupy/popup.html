@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatwork Groupy</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Chatwork Groupy</h1>
+    </header>
+
+    <main>
+      <form id="add-rule-form" class="form-container">
+        <div class="input-group">
+          <label for="group-name-input">グループ名</label>
+          <input type="text" id="group-name-input" placeholder="例：【オペレーション】" required>
+        </div>
+        <div class="input-group">
+          <label for="keyword-input">キーワード</label>
+          <input type="text" id="keyword-input" placeholder="例：社内,案件名(カンマ区切りで複数可)" required>
+        </div>
+        <button type="submit" class="add-button">ルールを追加</button>
+      </form>
+
+      <div class="rules-section">
+        <h2>ルール一覧</h2>
+        <ul id="rules-list">
+          </ul>
+      </div>
+    </main>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

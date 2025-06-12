@@ -1,0 +1,67 @@
+/* styles.css (本当の最終完成版) */
+
+.chatwork-groupy-group {
+  margin-bottom: 4px;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  background-color: #f6f8fa;
+  overflow: hidden;
+}
+
+.chatwork-groupy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  font-weight: bold;
+  font-size: 13px;
+  color: #24292e;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chatwork-groupy-header:hover {
+  background-color: #eef2f5;
+}
+
+.chatwork-groupy-header::before {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #586069;
+  margin-right: 10px;
+  transition: transform 0.2s ease;
+  transform-origin: center 25%;
+}
+
+.chatwork-groupy-group.open > .chatwork-groupy-header::before {
+  transform: rotate(90deg);
+}
+
+.chatwork-groupy-count {
+  background-color: #d1d5da;
+  color: #24292e;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chatwork-groupy-content {
+  display: none;
+  background-color: #fff;
+  border-top: 1px solid #e1e4e8;
+}
+
+.chatwork-groupy-group.open > .chatwork-groupy-content {
+  display: block;
+}
+
+/* ▼▼▼ このブロックを追加 ▼▼▼ */
+/* グループ内のリスト要素の標準マーカーを非表示にする */
+.chatwork-groupy-content li {
+  list-style: none;
+}

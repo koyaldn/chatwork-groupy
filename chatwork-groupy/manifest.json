@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Chatwork Groupy",
+  "version": "2.0",
+  "description": "Chatworkのチャットをグループ化する拡張機能",
+  "permissions": [
+    "storage"  
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.chatwork.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [{
+    "resources": [
+      "styles.css",
+      "content.js"
+    ],
+    "matches": ["https://www.chatwork.com/*"]
+  }],
+  "action": {
+    "default_popup": "popup.html"
+  }
+} 

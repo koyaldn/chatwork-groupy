@@ -1,0 +1,158 @@
+/* popup.css (機能追加版) */
+
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --border-color: #e0e0e0;
+  --background-color: #f9f9f9;
+  --text-color: #333;
+  --text-light-color: #777;
+  --danger-color: #e74c3c;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--text-color);
+  background-color: #fff;
+  width: 350px;
+  margin: 0;
+}
+
+.container {
+  padding: 16px;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 20px 0;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.add-button {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-button:hover {
+  background-color: #2980b9;
+}
+
+/* 更新ボタン用のスタイル */
+.add-button.update-mode {
+  background-color: var(--secondary-color);
+}
+.add-button.update-mode:hover {
+  background-color: #27ae60;
+}
+
+
+.rules-section {
+  margin-top: 25px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 15px;
+}
+
+.rules-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+#rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.rule-details .group-name {
+  font-weight: 600;
+}
+
+.rule-details .keyword {
+  color: var(--text-light-color);
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.rule-actions {
+  display: flex;
+  align-items: center;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+/* ▼▼▼ .delete-button を .action-button に統合 ▼▼▼ */
+.action-button:hover {
+  background-color: #f0f0f0;
+}
+
+.action-button svg {
+  width: 18px;
+  height: 18px;
+  fill: var(--text-light-color);
+  transition: fill 0.2s;
+}
+
+.action-button.delete-button:hover svg {
+  fill: var(--danger-color);
+}
+
+.action-button.edit-button:hover svg {
+  fill: var(--primary-color);
+}
