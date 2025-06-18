@@ -49,6 +49,10 @@ body {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.color-picker input {
+  padding: 2px;
+}
+
 .input-group input:focus {
   outline: none;
   border-color: var(--primary-color);

@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const keywordInput = document.getElementById('keyword-input');
   const rulesList = document.getElementById('rules-list');
   const submitButton = form.querySelector('.add-button');
+  const backgroundColorInput = document.getElementById('background-color-input');
 
   // ルールを描画する関数
   async function renderRules() {
@@ -21,11 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
       li.className = 'rule-item';
       // 複数キーワードをカンマ区切りの文字列に戻して表示
       const keywordsText = Array.isArray(rule.keywords) ? rule.keywords.join(', ') : rule.keywords;
-      
+      const bgColor = rule.backgroundColor || '#f6f8fa';
       li.innerHTML = `
         <div class="rule-details">
           <div class="group-name">${rule.groupName}</div>
           <div class="keyword">キーワード: ${keywordsText}</div>
+          <div class="color-sample" style="margin-top:4px;">
+            <span style="display:inline-block;width:18px;height:18px;border-radius:4px;background:${bgColor};border:1px solid #ccc;vertical-align:middle;"></span>
+          </div>
         </div>
         <div class="rule-actions">
           <button class="action-button edit-button" data-rule-id="${rule.id}" title="編集">
@@ -46,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     delete form.dataset.editingId;
     submitButton.textContent = 'ルールを追加';
     submitButton.classList.remove('update-mode');
+    backgroundColorInput.value = '#f6f8fa';
   }
 
   // 追加または更新の処理
@@ -54,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupName = groupNameInput.value.trim();
     const keywordsRaw = keywordInput.value.trim();
     const editingId = form.dataset.editingId ? Number(form.dataset.editingId) : null;
+    const backgroundColor = backgroundColorInput.value || '#f6f8fa';
 
     if (groupName && keywordsRaw) {
       // カンマで分割し、各キーワードの空白を除去し、空のものをフィルタリング
@@ -63,10 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (editingId) { // 更新モード
         rules = rules.map(rule => 
-          rule.id === editingId ? { ...rule, groupName, keywords } : rule
+          rule.id === editingId ? { ...rule, groupName, keywords, backgroundColor } : rule
         );
       } else { // 追加モード
-        rules.push({ id: Date.now(), groupName, keywords });
+        rules.push({ id: Date.now(), groupName, keywords, backgroundColor });
       }
 
       await chrome.storage.sync.set({ rules });
@@ -91,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const ruleToEdit = rules.find(rule => rule.id === ruleId);
       if (ruleToEdit) {
         groupNameInput.value = ruleToEdit.groupName;
-        // 配列をカンマ区切りの文字列に戻してセット
         keywordInput.value = Array.isArray(ruleToEdit.keywords) ? ruleToEdit.keywords.join(', ') : '';
+        backgroundColorInput.value = ruleToEdit.backgroundColor || '#f6f8fa';
         form.dataset.editingId = ruleId;
         submitButton.textContent = 'ルールを更新';
         submitButton.classList.add('update-mode');
@@ -103,4 +109,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 初期表示
   renderRules();
+
+  // ▼▼▼ 並び順ドラッグ＆ドロップ（Sortable.js） ▼▼▼
+  new Sortable(rulesList, {
+    animation: 150,
+    onEnd: async function (evt) {
+      // 並び替え後のrules配列を更新
+      let { rules = [] } = await chrome.storage.sync.get('rules');
+      if (evt.oldIndex === undefined || evt.newIndex === undefined || evt.oldIndex === evt.newIndex) return;
+      // 配列の順序を入れ替え
+      const moved = rules.splice(evt.oldIndex, 1)[0];
+      rules.splice(evt.newIndex, 0, moved);
+      await chrome.storage.sync.set({ rules });
+      renderRules();
+      // content.jsに並び順更新を通知
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+          chrome.tabs.sendMessage(tabs[0].id, { type: 'RULES_ORDER_UPDATED' });
+        }
+      });
+    }
+  });
 });

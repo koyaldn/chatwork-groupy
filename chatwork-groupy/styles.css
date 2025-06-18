@@ -42,7 +42,7 @@
 }
 
 .chatwork-groupy-count {
-  background-color: #d1d5da;
+  background-color: inherit;
   color: #24292e;
   border-radius: 10px;
   padding: 2px 8px;
@@ -64,4 +64,38 @@
 /* グループ内のリスト要素の標準マーカーを非表示にする */
 .chatwork-groupy-content li {
   list-style: none;
+}
+
+/* ▼▼▼ Chatwork Groupy 集約バッジ用スタイル ▼▼▼ */
+.cwgy-badge {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  padding: 2px 6px;
+  margin-left: 4px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  background-color: #d1d5da;
+  color: #24292e;
+  vertical-align: middle;
+}
+.cwgy-label {
+  font-size: 10px;
+  font-weight: bold;
+  margin-right: 3px;
+  opacity: 0.85;
+}
+.cwgy-unread {
+  background-color: #ff5e5e;
+  color: #fff;
+}
+.cwgy-to {
+  background-color: #ffb300;
+  color: #fff;
+}
+.cwgy-task {
+  background-color: #4caf50;
+  color: #fff;
 }
