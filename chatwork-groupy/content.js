@@ -75,7 +75,6 @@ async function groupChats() {
             }
           });
           const bgColor = rule.backgroundColor || '#f6f8fa';
-          const txtColor = rule.textColor || '#24292e';
           const groupContainer = document.createElement('div');
           groupContainer.className = 'chatwork-groupy-group';
           // 開閉状態を復元
@@ -83,7 +82,7 @@ async function groupChats() {
             groupContainer.classList.add('open');
           }
           groupContainer.innerHTML = `
-            <div class="chatwork-groupy-header" style="background-color: ${bgColor}; color: ${txtColor};">
+            <div class="chatwork-groupy-header" style="background-color: ${bgColor}; color: #24292e;">
               <span>${rule.groupName}</span>
               <span class="chatwork-groupy-count">
                 <span title="未読数" class="cwgy-badge cwgy-unread"><span class="cwgy-label">未読</span> ${totalUnread}</span>
