@@ -1,5 +1,4 @@
-// content.js (機能追加版)
-
+// content.js
 console.log('%c[Chatwork Groupy] Version 3.0 Loaded!', 'color: green; font-weight: bold; font-size: 16px;');
 
 const SELECTORS = {
@@ -16,11 +15,108 @@ async function getRules() {
   return rules;
 }
 
-const observer = new MutationObserver(() => {
+// MutationObserverの設定を更新
+const observerConfig = {
+  childList: true,
+  subtree: true,
+  attributes: true,
+  attributeFilter: ['class'],
+  characterData: true
+};
+
+const observer = new MutationObserver((mutations) => {
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(groupChats, 500);
+  debounceTimer = setTimeout(() => {
+    // 未読バッジやToマークに関連する変更があるか確認
+    const hasRelevantChanges = mutations.some(mutation => {
+      // クラスの変更
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        const target = mutation.target;
+        return target.classList.contains('_unreadBadge') || 
+               target.classList.contains('hgCifi') ||
+               target.closest('li[role="tab"]');
+      }
+      // 要素の追加・削除
+      if (mutation.type === 'childList') {
+        const addedNodes = Array.from(mutation.addedNodes);
+        const removedNodes = Array.from(mutation.removedNodes);
+        const hasRelevantNode = [...addedNodes, ...removedNodes].some(node => {
+          if (node.nodeType !== Node.ELEMENT_NODE) return false;
+          return node.matches && (
+            node.matches('li[role="tab"]') ||
+            node.matches('._unreadBadge') ||
+            node.querySelector('._unreadBadge, .hgCifi')
+          );
+        });
+        return hasRelevantNode;
+      }
+      return false;
+    });
+
+    if (hasRelevantChanges) {
+      debugLog('未読バッジまたはToマークの変更を検知しました。');
+      // 要素の追加・削除がある場合は完全な再構築
+      const needsFullUpdate = mutations.some(m => 
+        m.type === 'childList' && 
+        (m.addedNodes.length > 0 || m.removedNodes.length > 0)
+      );
+
+      if (needsFullUpdate) {
+        debugLog('チャットルームの変更を検知。グループを再構築します。');
+        groupChats();
+      } else {
+        debugLog('バッジの更新のみを実行します。');
+        updateGroupBadges();
+      }
+    }
+  }, 100);
 });
+
 let debounceTimer;
+
+// 未読バッジの更新のみを行う関数
+async function updateGroupBadges() {
+  try {
+    const rules = await getRules();
+    const roomList = document.querySelector(SELECTORS.ROOM_LIST);
+    if (!roomList) return;
+
+    roomList.querySelectorAll('.chatwork-groupy-group').forEach(group => {
+      const header = group.querySelector('.chatwork-groupy-header');
+      const groupName = header && header.querySelector('span') ? header.querySelector('span').textContent : '';
+      const content = group.querySelector('.chatwork-groupy-content');
+      
+      // このグループに対応するルールを見つける
+      const rule = rules.find(r => r.groupName === groupName);
+      if (!rule || !content) return;
+
+      // グループ内のルームの未読状態を集計
+      let totalUnread = 0;
+      let hasTo = false;
+      content.querySelectorAll(SELECTORS.ROOM_ITEM).forEach(room => {
+        const unreadBadge = room.querySelector('._unreadBadge span');
+        if (unreadBadge) {
+          const unread = parseInt(unreadBadge.textContent.trim(), 10) || 0;
+          totalUnread += unread;
+        }
+
+        const toMark = room.querySelector('.hgCifi');
+        if (toMark) {
+          hasTo = true;
+        }
+      });
+
+      // バッジ部分のみを更新
+      const badgeContainer = header.querySelector('.chatwork-groupy-count');
+      if (badgeContainer) {
+        badgeContainer.innerHTML = totalUnread > 0 ? 
+          `<span title="未読数${hasTo ? '(Toあり)' : ''}" class="cwgy-badge cwgy-unread${hasTo ? ' has-to' : ''}"><span class="cwgy-label">未読</span> ${totalUnread}</span>` : '';
+      }
+    });
+  } catch (error) {
+    debugLog('バッジの更新に失敗:', error);
+  }
+}
 
 async function groupChats() {
   observer.disconnect();
@@ -66,14 +162,20 @@ async function groupChats() {
           let totalUnread = 0;
           let hasTo = false;
           matchingRooms.forEach(room => {
-            const unreadLi = room.querySelector("li[data-testid='unread-badge-with-mention']");
-            if (unreadLi) {
-              const unreadSpan = unreadLi.querySelector('span');
-              const unread = unreadSpan ? parseInt(unreadSpan.textContent, 10) || 0 : 0;
+            // 未読バッジの取得
+            const unreadBadge = room.querySelector('._unreadBadge span');
+            if (unreadBadge) {
+              const unread = parseInt(unreadBadge.textContent.trim(), 10) || 0;
               totalUnread += unread;
+            }
+
+            // Toの確認 - .hgCifiクラスを持つ要素を検索
+            const toMark = room.querySelector('.hgCifi');
+            if (toMark) {
               hasTo = true;
             }
           });
+
           const bgColor = rule.backgroundColor || '#f6f8fa';
           const groupContainer = document.createElement('div');
           groupContainer.className = 'chatwork-groupy-group';
@@ -85,8 +187,7 @@ async function groupChats() {
             <div class="chatwork-groupy-header" style="background-color: ${bgColor}; color: #24292e;">
               <span>${rule.groupName}</span>
               <span class="chatwork-groupy-count">
-                <span title="未読数" class="cwgy-badge cwgy-unread"><span class="cwgy-label">未読</span> ${totalUnread}</span>
-                ${hasTo ? '<span title="Toあり" class="cwgy-badge cwgy-to"><span class="cwgy-label">To</span></span>' : ''}
+                ${totalUnread > 0 ? `<span title="未読数${hasTo ? '(Toあり)' : ''}" class="cwgy-badge cwgy-unread${hasTo ? ' has-to' : ''}"><span class="cwgy-label">未読</span> ${totalUnread}</span>` : ''}
               </span>
             </div>
             <div class="chatwork-groupy-content"></div>
@@ -96,7 +197,7 @@ async function groupChats() {
           groupDivs.push(groupContainer);
           const header = groupContainer.querySelector('.chatwork-groupy-header');
           header.addEventListener('click', () => {
-              groupContainer.classList.toggle('open');
+            groupContainer.classList.toggle('open');
           });
         }
       }
@@ -117,7 +218,7 @@ async function groupChats() {
   } finally {
     const roomList = document.querySelector(SELECTORS.ROOM_LIST);
     if (roomList) {
-      observer.observe(roomList, { childList: true, subtree: true });
+      observer.observe(roomList, observerConfig);
     }
   }
 }
@@ -130,7 +231,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
-// ▼▼▼ 並び順更新メッセージを受けて再グループ化 ▼▼▼
+// 並び順更新メッセージを受けて再グループ化
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message && message.type === 'RULES_ORDER_UPDATED') {
     debugLog('RULES_ORDER_UPDATEDメッセージを受信。グループ再構築します。');

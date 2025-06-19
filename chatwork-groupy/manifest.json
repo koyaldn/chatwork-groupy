@@ -1,33 +1,37 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Chatwork Groupy",
-  "version": "3.0",
-  "description": "Chatworkのチャットをグループ化する拡張機能",
+  "version": "3.1",
+  "description": "ChatworkのチャットルームをグループでまとめるChrome拡張機能です。",
   "permissions": [
-    "storage"  
+    "storage"
   ],
-  "content_scripts": [
-    {
-      "matches": ["https://www.chatwork.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"],
-      "run_at": "document_idle",
-      "all_frames": false
-    }
-  ],
-  "web_accessible_resources": [{
-    "resources": [
-      "styles.css",
-      "content.js"
-    ],
-    "matches": ["https://www.chatwork.com/*"]
-  }],
-  "action": {
-    "default_popup": "popup.html"
-  },
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  }
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Chatwork Groupy",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.chatwork.com/*"
+      ],
+      "js": [
+        "Sortable.min.js",
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ]
+    }
+  ]
 } 

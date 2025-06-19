@@ -1,23 +1,100 @@
 /* styles.css (本当の最終完成版) */
 
+#RoomList {
+  list-style: none !important;
+}
+
+#RoomList li {
+  list-style: none !important;
+}
+
+.chatwork-groupy-group {
+  margin: 0;
+  padding: 0;
+}
+
+.chatwork-groupy-header {
+  cursor: pointer;
+  padding: 8px 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 4px;
+  margin: 2px 0;
+}
+
+.chatwork-groupy-content {
+  display: none;
+  padding-left: 0;
+  list-style: none !important;
+}
+
+.chatwork-groupy-group.open .chatwork-groupy-content {
+  display: block;
+}
+
+.chatwork-groupy-count {
+  display: flex;
+  align-items: center;
+}
+
+.cwgy-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #f66;
+  color: white;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 1.2;
+  position: relative;
+}
+
+.cwgy-badge.has-to::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: #4caf50;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.cwgy-label {
+  margin-right: 4px;
+  font-size: 11px;
+}
+
+/* マーカーを確実に非表示にする */
+#RoomList li::marker {
+  display: none !important;
+  content: none !important;
+}
+
+#RoomList .chatwork-groupy-content li::marker {
+  display: none !important;
+  content: none !important;
+}
+
+/* リストスタイルのリセットを強制 */
+#RoomList, 
+#RoomList li,
+.chatwork-groupy-content,
+.chatwork-groupy-content li {
+  list-style-type: none !important;
+  list-style-position: inside !important;
+  list-style-image: none !important;
+}
+
 .chatwork-groupy-group {
   margin-bottom: 4px;
   border: 1px solid #e1e4e8;
   border-radius: 6px;
   background-color: #f6f8fa;
   overflow: hidden;
-}
-
-.chatwork-groupy-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  font-weight: bold;
-  font-size: 13px;
-  color: #24292e;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .chatwork-groupy-header:hover {
@@ -41,60 +118,43 @@
   transform: rotate(90deg);
 }
 
-.chatwork-groupy-count {
-  background-color: inherit;
-  color: #24292e;
-  border-radius: 10px;
-  padding: 2px 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.chatwork-groupy-content {
-  display: none;
-  background-color: #fff;
-  border-top: 1px solid #e1e4e8;
-}
-
-.chatwork-groupy-group.open > .chatwork-groupy-content {
-  display: block;
-}
-
-/* ▼▼▼ このブロックを追加 ▼▼▼ */
-/* グループ内のリスト要素の標準マーカーを非表示にする */
-.chatwork-groupy-content li {
-  list-style: none;
-}
-
-/* ▼▼▼ Chatwork Groupy 集約バッジ用スタイル ▼▼▼ */
-.cwgy-badge {
-  display: inline-flex;
-  align-items: center;
-  min-width: 0;
-  padding: 2px 6px;
-  margin-left: 4px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  background-color: #d1d5da;
-  color: #24292e;
-  vertical-align: middle;
-}
-.cwgy-label {
-  font-size: 10px;
-  font-weight: bold;
-  margin-right: 3px;
-  opacity: 0.85;
-}
-.cwgy-unread {
+.chatwork-groupy-count .cwgy-badge.cwgy-unread {
   background-color: #ff5e5e;
   color: #fff;
+  position: relative;
+  z-index: 2;
 }
-.cwgy-to {
-  background-color: #ffb300;
-  color: #fff;
+
+/* To未読アイコン - Chatworkのスタイルに合わせる */
+.chatwork-groupy-count .cwgy-badge.cwgy-unread.has-to {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
 }
+
+.chatwork-groupy-count .cwgy-badge.cwgy-unread.has-to::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  background-color: rgb(87, 202, 179);
+  border: 1.5px solid rgb(235, 239, 244);
+  border-radius: 50%;
+  z-index: 9999;
+  box-sizing: content-box;
+}
+
+/* グループヘッダーのテキスト制限 */
+.chatwork-groupy-header span:first-child {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .cwgy-task {
   background-color: #4caf50;
   color: #fff;
