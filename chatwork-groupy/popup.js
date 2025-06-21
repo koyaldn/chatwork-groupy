@@ -61,24 +61,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const editingId = form.dataset.editingId ? Number(form.dataset.editingId) : null;
     const backgroundColor = backgroundColorInput.value || '#f6f8fa';
 
-    if (groupName && keywordsRaw) {
-      // カンマで分割し、各キーワードの空白を除去し、空のものをフィルタリング
-      const keywords = keywordsRaw.split(',').map(kw => kw.trim()).filter(Boolean);
-
-      let { rules = [] } = await chrome.storage.sync.get('rules');
-
-      if (editingId) { // 更新モード
-        rules = rules.map(rule => 
-          rule.id === editingId ? { ...rule, groupName, keywords, backgroundColor } : rule
-        );
-      } else { // 追加モード
-        rules.push({ id: Date.now(), groupName, keywords, backgroundColor });
-      }
-
-      await chrome.storage.sync.set({ rules });
-      resetForm();
-      renderRules();
+    if (!groupName || !keywordsRaw) {
+      alert('グループ名とキーワードを入力してください。');
+      return;
     }
+
+    // グループ名の文字数制限を追加
+    if (groupName.length > 12) {
+      alert('グループ名は12文字以内で入力してください。');
+      return;
+    }
+
+    // カンマで分割し、各キーワードの空白を除去し、空のものをフィルタリング
+    const keywords = keywordsRaw.split(',').map(kw => kw.trim()).filter(Boolean);
+
+    let { rules = [] } = await chrome.storage.sync.get('rules');
+
+    if (editingId) { // 更新モード
+      rules = rules.map(rule => 
+        rule.id === editingId ? { ...rule, groupName, keywords, backgroundColor } : rule
+      );
+    } else { // 追加モード
+      rules.push({ id: Date.now(), groupName, keywords, backgroundColor });
+    }
+
+    await chrome.storage.sync.set({ rules });
+    resetForm();
+    renderRules();
   });
 
   // 編集と削除の処理（イベントデリゲーション）
