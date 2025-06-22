@@ -4,7 +4,7 @@
 
 **この拡張機能は、制作者から共有された特定のユーザーのみが利用できる非公開版です。**
 
-![Chatwork Groupy 動作デモ](images/ChatworGroupy_Screenshot.jpg)
+![Chatwork Groupy 動作デモ](images/ChatworGroupy_Screenshot01.jpg)
 
 ---
 
