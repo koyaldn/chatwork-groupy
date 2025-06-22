@@ -122,7 +122,7 @@
   background-color: #ff5e5e;
   color: #fff;
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 /* To未読アイコン - Chatworkのスタイルに合わせる */
